@@ -1,0 +1,38 @@
+{
+  "name": "Progress MY — трекер целей",
+  "short_name": "Progress MY",
+  "description": "Трекер привычек и целей с серией, офлайн-поддержкой и мотивационной системой",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0f0f0f",
+  "theme_color": "#0f0f0f",
+  "orientation": "portrait-primary",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Привычки",
+      "url": "./#habits",
+      "description": "Открыть трекер привычек"
+    },
+    {
+      "name": "Цели",
+      "url": "./#goals",
+      "description": "Открыть список целей"
+    }
+  ]
+}

@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0f0f0f">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Progress MY">
+  <link rel="manifest" href="./manifest.json">
+  <title>Progress MY</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0f0f0f;
+      --bg2:       #181818;
+      --bg3:       #222;
+      --bg4:       #2a2a2a;
+      --border:    rgba(255,255,255,0.09);
+      --border2:   rgba(255,255,255,0.15);
+      --text:      #f0f0f0;
+      --text2:     #888;
+      --text3:     #444;
+      --green:     #22c55e;
+      --green-bg:  rgba(34,197,94,0.12);
+      --orange:    #f97316;
+      --blue:      #3b82f6;
+      --purple:    #a855f7;
+      --red:       #ef4444;
+      --radius:    12px;
+      --font:      -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── OFFLINE BANNER ─── */
+    .offline-bar {
+      display: none;
+      background: var(--orange);
+      color: #000;
+      text-align: center;
+      padding: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+    }
+    body.offline .offline-bar { display: block; }
+    body.offline .app { padding-top: 52px; }
+
+    /* ─── LAYOUT ─── */
+    .app {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px 16px 32px;
+    }
+
+    /* ─── HEADER ─── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 22px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo-icon { font-size: 22px; }
+    .logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+    .install-btn {
+      display: none;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border2);
+      background: var(--bg2);
+      color: var(--text2);
+      font-size: 12px;
+      cursor: pointer;
+      font-family: var(--font);
+    }
+    .install-btn:hover { color: var(--text); border-color: var(--border2); }
+
+    /* ─── TABS ─── */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text2);
+      font-size: 13px;
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: var(--font);
+      transition: all 0.15s;
+    }
+    .tab.active {
+      background: var(--bg3);
+      color: var(--text);
+      border-color: var(--border2);
+    }
+
+    /* ─── SECTION ─── */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* ─── STREAK BANNER ─── */
+    .streak-banner {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      margin-bottom: 20px;
+      padding-bottom: 2px;
+    }
+    .streak-banner::-webkit-scrollbar { display: none; }
+    .streak-card {
+      flex-shrink: 0;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      min-width: 72px;
+    }
+    .streak-card.alive { border-color: rgba(249,115,22,0.35); }
+    .streak-icon { font-size: 18px; line-height: 1; }
+    .streak-num {
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--orange);
+    }
+    .streak-num.zero { color: var(--text3); }
+    .streak-label {
+      font-size: 10px;
+      color: var(--text2);
+      text-align: center;
+      max-width: 68px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* ─── CATEGORY FILTER ─── */
+    .cat-filter {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .cat-filter::-webkit-scrollbar { display: none; }
+    .cat-btn {
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text2);
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      font-family: var(--font);
+    }
+    .cat-btn.active {
+      background: var(--bg3);
+      color: var(--text);
+      border-color: var(--border2);
+    }
+
+    /* ─── WEEK GRID ─── */
+    .week-grid {
+      margin-bottom: 12px;
+    }
+    .week-header-row {
+      display: grid;
+      grid-template-columns: 1fr repeat(7, 34px);
+      gap: 3px;
+      margin-bottom: 6px;
+      padding: 0 2px;
+    }
+    .day-hdr {
+      font-size: 11px;
+      color: var(--text2);
+      text-align: center;
+      padding: 3px 0;
+      font-weight: 500;
+    }
+    .day-hdr.is-today { color: var(--blue); font-weight: 700; }
+
+    .habit-row {
+      display: grid;
+      grid-template-columns: 1fr repeat(7, 34px);
+      gap: 3px;
+      align-items: center;
+      padding: 4px 2px;
+      border-radius: 8px;
+      margin-bottom: 4px;
+    }
+    .habit-row:hover { background: var(--bg2); }
+
+    .habit-info {
+      padding: 4px 4px 4px 0;
+      min-width: 0;
+    }
+    .habit-name-line {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .habit-name {
+      font-size: 13px;
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .habit-time {
+      font-size: 10px;
+      color: var(--text3);
+      margin-top: 1px;
+    }
+    .streak-pill {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--orange);
+      background: rgba(249,115,22,0.1);
+      padding: 1px 6px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      line-height: 1.6;
+    }
+    .identity-line {
+      font-size: 10px;
+      color: var(--purple);
+      font-style: italic;
+      margin-top: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .day-cell {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: var(--bg2);
+      border: 1px solid transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: transform 0.1s, background 0.1s;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .day-cell.done {
+      background: var(--green-bg);
+      border-color: rgba(34,197,94,0.28);
+      color: var(--green);
+    }
+    .day-cell.is-today { border-color: rgba(59,130,246,0.4); }
+    .day-cell:active { transform: scale(0.85); }
+
+    /* ─── EMPTY STATE ─── */
+    .empty {
+      text-align: center;
+      padding: 3rem 0;
+      color: var(--text2);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    /* ─── ADD BUTTON ─── */
+    .add-row {
+      margin-top: 10px;
+    }
+    .add-btn {
+      width: 100%;
+      padding: 11px;
+      border-radius: var(--radius);
+      border: 1px dashed var(--border2);
+      background: transparent;
+      color: var(--text2);
+      font-size: 13px;
+      cursor: pointer;
+      font-family: var(--font);
+      transition: all 0.15s;
+    }
+    .add-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.25); }
+
+    /* ─── FORM CARD ─── */
+    .form-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-top: 10px;
+      display: none;
+    }
+    .form-card.open { display: block; }
+    .form-row { margin-bottom: 12px; }
+    .form-row label {
+      display: block;
+      font-size: 11px;
+      color: var(--text2);
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    .form-row input,
+    .form-row select,
+    .form-row textarea {
+      width: 100%;
+      padding: 9px 11px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg3);
+      color: var(--text);
+      font-size: 13px;
+      font-family: var(--font);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-row input:focus,
+    .form-row select:focus,
+    .form-row textarea:focus { border-color: var(--border2); }
+    .form-row textarea { resize: vertical; min-height: 64px; }
+    .form-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border2);
+      background: var(--bg3);
+      color: var(--text);
+      font-size: 13px;
+      cursor: pointer;
+      font-family: var(--font);
+    }
+    .btn-primary {
+      background: var(--green);
+      border-color: var(--green);
+      color: #000;
+      font-weight: 700;
+    }
+    .btn:hover { background: var(--bg4); }
+    .btn-primary:hover { opacity: 0.9; }
+
+    /* ─── DELETE BTN ─── */
+    .del-btn {
+      background: none;
+      border: none;
+      color: var(--text3);
+      font-size: 17px;
+      cursor: pointer;
+      padding: 0 2px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .del-btn:hover { color: var(--red); }
+
+    /* ─── GOAL CARDS ─── */
+    .goal-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+    .goal-card.done-card { opacity: 0.55; }
+    .goal-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .goal-check {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border2);
+      flex-shrink: 0;
+      margin-top: 2px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: var(--green);
+      transition: all 0.15s;
+    }
+    .goal-check.checked {
+      background: var(--green-bg);
+      border-color: var(--green);
+    }
+    .goal-text {
+      font-size: 14px;
+      font-weight: 500;
+      flex: 1;
+      min-width: 0;
+    }
+    .done-card .goal-text { text-decoration: line-through; }
+    .goal-identity {
+      font-size: 11px;
+      color: var(--purple);
+      font-style: italic;
+      margin-top: 4px;
+    }
+    .goal-meta {
+      font-size: 11px;
+      color: var(--text2);
+      margin-top: 3px;
+    }
+    .goal-phi {
+      font-size: 12px;
+      color: var(--text2);
+      margin-top: 8px;
+      padding-left: 8px;
+      border-left: 2px solid var(--border2);
+      line-height: 1.6;
+    }
+    .goal-tags { margin-top: 10px; display: flex; gap: 6px; align-items: center; }
+    .tag {
+      font-size: 10px;
+      padding: 2px 9px;
+      border-radius: 10px;
+      border: 1px solid;
+    }
+
+    /* ─── STATS ─── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 12px;
+    }
+    .stat-lbl { font-size: 10px; color: var(--text2); margin-bottom: 5px; font-weight: 500; }
+    .stat-val { font-size: 26px; font-weight: 800; line-height: 1; }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 12px;
+    }
+
+    .best-streak-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .best-streak-name { flex: 1; }
+    .best-streak-vals {
+      font-size: 12px;
+      color: var(--orange);
+      min-width: 80px;
+      text-align: right;
+    }
+
+    /* ─── CHART WRAP ─── */
+    .chart-wrap {
+      position: relative;
+      height: 180px;
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-bar">Офлайн — данные сохранены локально</div>
+
+  <div class="app">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">
+        <span class="logo-icon">🔥</span>
+        <span class="logo-text">Progress MY</span>
+      </div>
+      <button class="install-btn" id="install-btn">Установить</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('habits',this)">Привычки</button>
+      <button class="tab" onclick="showTab('goals',this)">Цели</button>
+      <button class="tab" onclick="showTab('analytics',this)">Аналитика</button>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         TAB: HABITS
+    ════════════════════════════════════════ -->
+    <div class="section active" id="sec-habits">
+
+      <!-- Streak cards -->
+      <div class="streak-banner" id="streak-banner"></div>
+
+      <!-- Category filter -->
+      <div class="cat-filter" id="cat-filter"></div>
+
+      <!-- Week header + habit rows -->
+      <div class="week-grid">
+        <div class="week-header-row" id="week-hdr"></div>
+        <div id="habit-rows"></div>
+      </div>
+
+      <!-- Add habit -->
+      <div class="add-row">
+        <button class="add-btn" onclick="toggleForm('form-habit')">+ Добавить привычку</button>
+        <div class="form-card" id="form-habit">
+          <div class="form-row">
+            <label>Название</label>
+            <input id="hf-name" type="text" placeholder="Утренняя пробежка">
+          </div>
+          <div class="form-row">
+            <label>Категория</label>
+            <select id="hf-cat">
+              <option value="sport">Спорт</option>
+              <option value="health">Здоровье</option>
+              <option value="mind">Развитие</option>
+              <option value="work">Работа</option>
+              <option value="spirit">Духовность</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Временное окно</label>
+            <input id="hf-time" type="text" placeholder="09:00–12:00">
+          </div>
+          <div class="form-row">
+            <label>Минимальная версия (на плохой день)</label>
+            <input id="hf-min" type="text" placeholder="Хотя бы 5 минут">
+          </div>
+          <div class="form-row">
+            <label>Философия — зачем мне это?</label>
+            <input id="hf-phi" type="text" placeholder="Потому что...">
+          </div>
+          <div class="form-row">
+            <label>Идентичность (Я — ...)</label>
+            <input id="hf-id" type="text" placeholder="Я — человек, который двигается каждый день">
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" onclick="addHabit()">Сохранить</button>
+            <button class="btn" onclick="toggleForm('form-habit')">Отмена</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /sec-habits -->
+
+    <!-- ═══════════════════════════════════════
+         TAB: GOALS
+    ════════════════════════════════════════ -->
+    <div class="section" id="sec-goals">
+
+      <div id="goal-list"></div>
+
+      <div class="add-row">
+        <button class="add-btn" onclick="toggleForm('form-goal')">+ Добавить цель</button>
+        <div class="form-card" id="form-goal">
+          <div class="form-row">
+            <label>Цель</label>
+            <input id="gf-text" type="text" placeholder="Пробежать 5 km за 30 минут">
+          </div>
+          <div class="form-row">
+            <label>Сфера</label>
+            <select id="gf-sphere">
+              <option value="sport">Спорт</option>
+              <option value="health">Здоровье</option>
+              <option value="mind">Развитие</option>
+              <option value="work">Работа</option>
+              <option value="finance">Финансы</option>
+              <option value="relations">Отношения</option>
+              <option value="spirit">Духовность</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Дедлайн</label>
+            <input id="gf-deadline" type="date">
+          </div>
+          <div class="form-row">
+            <label>Философия — зачем это важно?</label>
+            <textarea id="gf-phi" placeholder="Это важно для меня, потому что..."></textarea>
+          </div>
+          <div class="form-row">
+            <label>Идентичность (Я — ...)</label>
+            <input id="gf-id" type="text" placeholder="Я — человек, который...">
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" onclick="addGoal()">Сохранить</button>
+            <button class="btn" onclick="toggleForm('form-goal')">Отмена</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /sec-goals -->
+
+    <!-- ═══════════════════════════════════════
+         TAB: ANALYTICS
+    ════════════════════════════════════════ -->
+    <div class="section" id="sec-analytics">
+
+      <div class="stats-grid" id="stats-grid"></div>
+
+      <div class="section-title">Выполнение за 7 дней</div>
+      <div class="chart-wrap">
+        <canvas id="chart-analytics"></canvas>
+      </div>
+
+      <div class="section-title">Серии привычек (текущая 🔥 / лучшая 🏆)</div>
+      <div id="best-streaks"></div>
+
+    </div><!-- /sec-analytics -->
+
+  </div><!-- /app -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script>
+  /* ================================================================
+     SERVICE WORKER
+  ================================================================ */
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () =>
+      navigator.serviceWorker.register('./sw.js').catch(() => {})
+    );
+  }
+
+  /* PWA install prompt */
+  let _deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    _deferredPrompt = e;
+    document.getElementById('install-btn').style.display = 'block';
+  });
+  document.getElementById('install-btn').addEventListener('click', async () => {
+    if (!_deferredPrompt) return;
+    _deferredPrompt.prompt();
+    await _deferredPrompt.userChoice;
+    _deferredPrompt = null;
+    document.getElementById('install-btn').style.display = 'none';
+  });
+
+  /* Offline */
+  window.addEventListener('offline', () => document.body.classList.add('offline'));
+  window.addEventListener('online',  () => document.body.classList.remove('offline'));
+
+  /* ================================================================
+     DATA MODEL
+     Goals → Habits → Actions (scheduled) → Events (source of truth)
+  ================================================================ */
+  const KEY = 'progress_my_v1';
+
+  const CATS = {
+    sport:    { label: 'Спорт',       color: '#3b82f6' },
+    health:   { label: 'Здоровье',    color: '#22c55e' },
+    mind:     { label: 'Развитие',    color: '#a855f7' },
+    work:     { label: 'Работа',      color: '#f59e0b' },
+    spirit:   { label: 'Духовность',  color: '#ec4899' },
+    finance:  { label: 'Финансы',     color: '#14b8a6' },
+    relations:{ label: 'Отношения',   color: '#f43f5e' },
+  };
+
+  const DAYS = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+
+  function mkDefault() {
+    return {
+      version: 1,
+      /* Habits: master list */
+      habits: [
+        { id:'h1', name:'Медитация',      cat:'spirit', time:'09:00–10:00', min:'5 минут тишины',      phi:'Спокойствие — основа решений',      identity:'Я — спокойный человек',       active:true, createdAt:Date.now() },
+        { id:'h2', name:'Чтение 20 стр.', cat:'mind',   time:'',           min:'1 страница',            phi:'Учусь каждый день',                 identity:'Я — читающий человек',        active:true, createdAt:Date.now() },
+        { id:'h3', name:'Тренировка',     cat:'sport',  time:'09:00–12:00', min:'10 отжиманий',          phi:'Сильное тело — источник энергии',   identity:'Я — спортивный человек',      active:true, createdAt:Date.now() },
+      ],
+      /* Goals */
+      goals: [],
+      /*
+        Events — source of truth for ALL habit completions.
+        Schema: { id, habitId, date:'YYYY-MM-DD', done:bool, timestamp, note:'' }
+        One record per (habitId × date). Toggle done to log / undo.
+      */
+      events: [],
+    };
+  }
+
+  let S = (() => {
+    try { return JSON.parse(localStorage.getItem(KEY)) || mkDefault(); }
+    catch(e) { return mkDefault(); }
+  })();
+  /* migration guards */
+  if (!S.events)  S.events = [];
+  if (!S.goals)   S.goals  = [];
+  if (!S.habits)  S.habits = mkDefault().habits;
+
+  function save() { localStorage.setItem(KEY, JSON.stringify(S)); }
+
+  /* ================================================================
+     DATE HELPERS
+  ================================================================ */
+  function toISO(d) { return d.toISOString().slice(0, 10); }
+  function today()  { return toISO(new Date()); }
+
+  /* Return last N dates as YYYY-MM-DD strings, oldest→newest */
+  function last7() {
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      return toISO(d);
+    });
+  }
+
+  function dayLabel(iso) {
+    const d  = new Date(iso + 'T12:00:00');
+    const idx = (d.getDay() + 6) % 7; // 0=Mon
+    return DAYS[idx];
+  }
+
+  /* ================================================================
+     EVENT HELPERS
+  ================================================================ */
+  function getEvent(habitId, date) {
+    return S.events.find(e => e.habitId === habitId && e.date === date);
+  }
+
+  function isDone(habitId, date) {
+    const ev = getEvent(habitId, date);
+    return ev ? ev.done : false;
+  }
+
+  function toggleEvent(habitId, date) {
+    const existing = getEvent(habitId, date);
+    if (existing) {
+      existing.done = !existing.done;
+      existing.timestamp = Date.now();
+    } else {
+      S.events.push({
+        id: `ev_${Date.now()}_${Math.random().toString(36).slice(2,6)}`,
+        habitId,
+        date,
+        done: true,
+        timestamp: Date.now(),
+        note: '',
+      });
+    }
+    save();
+    renderHabits();
+    renderStreakBanner();
+  }
+
+  /* ================================================================
+     STREAK CALCULATION
+     - If today is done  → count today + consecutive days back
+     - If today not done → streak still "alive" if yesterday was done
+       (user has until EOD)
+  ================================================================ */
+  function currentStreak(habitId) {
+    const t = today();
+    const startOffset = isDone(habitId, t) ? 0 : 1;
+    let streak = 0;
+    for (let i = startOffset; i < 400; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      if (isDone(habitId, toISO(d))) { streak++; }
+      else { break; }
+    }
+    return streak;
+  }
+
+  function bestStreak(habitId) {
+    const dates = S.events
+      .filter(e => e.habitId === habitId && e.done)
+      .map(e => e.date)
+      .sort();
+    if (!dates.length) return 0;
+    let best = 1, run = 1;
+    for (let i = 1; i < dates.length; i++) {
+      const diff = (new Date(dates[i]+'T12:00:00') - new Date(dates[i-1]+'T12:00:00')) / 86400000;
+      if (diff === 1) { run++; if (run > best) best = run; }
+      else { run = 1; }
+    }
+    return best;
+  }
+
+  /* ================================================================
+     RENDER — HABITS
+  ================================================================ */
+  let activeCat = 'all';
+
+  function renderStreakBanner() {
+    const active = S.habits.filter(h => h.active);
+    const banner = document.getElementById('streak-banner');
+    if (!active.length) { banner.innerHTML = ''; return; }
+    banner.innerHTML = active.map(h => {
+      const s = currentStreak(h.id);
+      const alive = s > 0;
+      const icon = s >= 14 ? '🔥' : s >= 7 ? '⚡' : s >= 3 ? '✅' : s > 0 ? '○' : '—';
+      return `<div class="streak-card ${alive ? 'alive' : ''}">
+        <div class="streak-icon">${icon}</div>
+        <div class="streak-num ${s === 0 ? 'zero' : ''}">${s}</div>
+        <div class="streak-label">${h.name}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderCatFilter() {
+    const filter = document.getElementById('cat-filter');
+    filter.innerHTML = ['all', ...Object.keys(CATS)].map(c =>
+      `<button class="cat-btn ${c === activeCat ? 'active' : ''}"
+               onclick="setCat('${c}')">${c === 'all' ? 'Все' : CATS[c].label}</button>`
+    ).join('');
+  }
+
+  function setCat(cat) { activeCat = cat; renderCatFilter(); renderHabits(); }
+
+  function renderWeekHeader() {
+    const dates = last7();
+    const t = today();
+    document.getElementById('week-hdr').innerHTML =
+      '<div></div>' +
+      dates.map(d =>
+        `<div class="day-hdr ${d === t ? 'is-today' : ''}">${dayLabel(d)}</div>`
+      ).join('');
+  }
+
+  function renderHabits() {
+    const dates = last7();
+    const t = today();
+    const habits = activeCat === 'all'
+      ? S.habits.filter(h => h.active)
+      : S.habits.filter(h => h.active && h.cat === activeCat);
+
+    const container = document.getElementById('habit-rows');
+    if (!habits.length) {
+      container.innerHTML = `<div class="empty">Нет привычек в этой категории.<br>Добавьте первую!</div>`;
+      return;
+    }
+
+    container.innerHTML = habits.map(h => {
+      const s = currentStreak(h.id);
+      const cat = CATS[h.cat] || CATS.sport;
+      return `<div class="habit-row">
+        <div class="habit-info">
+          <div class="habit-name-line">
+            <span class="habit-name">${h.name}</span>
+            ${s > 0 ? `<span class="streak-pill">🔥${s}</span>` : ''}
+            <button class="del-btn" onclick="deleteHabit('${h.id}')">×</button>
+          </div>
+          ${h.time ? `<div class="habit-time">${h.time}</div>` : ''}
+          ${h.identity ? `<div class="identity-line">${h.identity}</div>` : ''}
+        </div>
+        ${dates.map(d =>
+          `<div class="day-cell ${isDone(h.id, d) ? 'done' : ''} ${d === t ? 'is-today' : ''}"
+                onclick="toggleEvent('${h.id}','${d}')">
+            ${isDone(h.id, d) ? '✓' : ''}
+          </div>`
+        ).join('')}
+      </div>`;
+    }).join('');
+  }
+
+  function renderHabitsTab() {
+    renderStreakBanner();
+    renderCatFilter();
+    renderWeekHeader();
+    renderHabits();
+  }
+
+  /* ================================================================
+     HABIT CRUD
+  ================================================================ */
+  function addHabit() {
+    const name = document.getElementById('hf-name').value.trim();
+    if (!name) return;
+    S.habits.push({
+      id:       `h_${Date.now()}`,
+      name,
+      cat:      document.getElementById('hf-cat').value,
+      time:     document.getElementById('hf-time').value.trim(),
+      min:      document.getElementById('hf-min').value.trim(),
+      phi:      document.getElementById('hf-phi').value.trim(),
+      identity: document.getElementById('hf-id').value.trim(),
+      active:   true,
+      createdAt: Date.now(),
+    });
+    save();
+    toggleForm('form-habit');
+    ['hf-name','hf-time','hf-min','hf-phi','hf-id'].forEach(id =>
+      (document.getElementById(id).value = '')
+    );
+    renderHabitsTab();
+  }
+
+  function deleteHabit(id) {
+    if (!confirm('Удалить привычку?')) return;
+    S.habits = S.habits.filter(h => h.id !== id);
+    // keep events for history
+    save();
+    renderHabitsTab();
+  }
+
+  /* ================================================================
+     RENDER — GOALS
+  ================================================================ */
+  function renderGoals() {
+    const el = document.getElementById('goal-list');
+    if (!S.goals.length) {
+      el.innerHTML = `<div class="empty">Нет целей.<br>Добавьте первую!</div>`;
+      return;
+    }
+    el.innerHTML = S.goals.map((g, i) => {
+      const cat = CATS[g.sphere] || CATS.health;
+      return `<div class="goal-card ${g.done ? 'done-card' : ''}">
+        <div class="goal-top">
+          <div class="goal-check ${g.done ? 'checked' : ''}" onclick="toggleGoal(${i})">
+            ${g.done ? '✓' : ''}
+          </div>
+          <div style="flex:1;min-width:0">
+            <div class="goal-text">${g.text}</div>
+            ${g.identity ? `<div class="goal-identity">${g.identity}</div>` : ''}
+            ${g.deadline  ? `<div class="goal-meta">до ${g.deadline}</div>` : ''}
+            ${g.phi ? `<div class="goal-phi">${g.phi}</div>` : ''}
+          </div>
+          <button class="del-btn" onclick="deleteGoal(${i})">×</button>
+        </div>
+        <div class="goal-tags">
+          <span class="tag" style="background:${cat.color}18;color:${cat.color};border-color:${cat.color}33">
+            ${cat.label}
+          </span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function addGoal() {
+    const text = document.getElementById('gf-text').value.trim();
+    if (!text) return;
+    S.goals.push({
+      id:       `g_${Date.now()}`,
+      text,
+      sphere:   document.getElementById('gf-sphere').value,
+      deadline: document.getElementById('gf-deadline').value,
+      phi:      document.getElementById('gf-phi').value.trim(),
+      identity: document.getElementById('gf-id').value.trim(),
+      done:     false,
+      createdAt: Date.now(),
+    });
+    save();
+    toggleForm('form-goal');
+    ['gf-text','gf-deadline','gf-phi','gf-id'].forEach(id =>
+      (document.getElementById(id).value = '')
+    );
+    renderGoals();
+  }
+
+  function toggleGoal(i) { S.goals[i].done = !S.goals[i].done; save(); renderGoals(); }
+
+  function deleteGoal(i) {
+    if (!confirm('Удалить цель?')) return;
+    S.goals.splice(i, 1);
+    save();
+    renderGoals();
+  }
+
+  /* ================================================================
+     RENDER — ANALYTICS
+  ================================================================ */
+  let _chart = null;
+
+  function renderAnalytics() {
+    const active  = S.habits.filter(h => h.active);
+    const t       = today();
+    const doneTdy = active.filter(h => isDone(h.id, t)).length;
+    const streaks = active.map(h => currentStreak(h.id));
+    const maxStr  = streaks.length ? Math.max(...streaks) : 0;
+    const doneG   = S.goals.filter(g => g.done).length;
+
+    document.getElementById('stats-grid').innerHTML = `
+      <div class="stat-card">
+        <div class="stat-lbl">Сегодня</div>
+        <div class="stat-val" style="color:var(--green)">${doneTdy}<span style="font-size:14px;color:var(--text2)">/${active.length}</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Макс. серия</div>
+        <div class="stat-val" style="color:var(--orange)">${maxStr}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">Целей</div>
+        <div class="stat-val" style="color:var(--blue)">${doneG}<span style="font-size:14px;color:var(--text2)">/${S.goals.length}</span></div>
+      </div>`;
+
+    /* Bar chart: % completion per day last 7 days */
+    const dates  = last7();
+    const data   = dates.map(d =>
+      active.length ? Math.round(active.filter(h => isDone(h.id, d)).length / active.length * 100) : 0
+    );
+    const labels = dates.map(d => dayLabel(d) + (d === t ? ' ●' : ''));
+
+    if (_chart) { _chart.destroy(); _chart = null; }
+    _chart = new Chart(document.getElementById('chart-analytics'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          data,
+          backgroundColor: dates.map(d =>
+            d === t ? 'rgba(59,130,246,0.55)' : 'rgba(34,197,94,0.38)'
+          ),
+          borderRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true, max: 100,
+            ticks: { callback: v => v + '%', color: '#666', font: { size: 11 } },
+            grid: { color: 'rgba(255,255,255,0.04)' },
+          },
+          x: {
+            ticks: { color: '#666', font: { size: 11 } },
+            grid: { display: false },
+          }
+        }
+      }
+    });
+
+    /* Best streaks table */
+    const rows = active
+      .map(h => ({ h, cur: currentStreak(h.id), best: bestStreak(h.id) }))
+      .sort((a, b) => b.best - a.best);
+
+    document.getElementById('best-streaks').innerHTML =
+      rows.length
+        ? rows.map(({ h, cur, best }) => {
+            const cat = CATS[h.cat] || CATS.sport;
+            return `<div class="best-streak-row">
+              <div class="best-streak-name">${h.name}</div>
+              <span class="tag" style="background:${cat.color}18;color:${cat.color};border-color:${cat.color}33;font-size:10px">${cat.label}</span>
+              <div class="best-streak-vals">🔥${cur} / 🏆${best}</div>
+            </div>`;
+          }).join('')
+        : `<div class="empty" style="padding:1.5rem 0">Нажимайте ✓ каждый день — серии появятся здесь</div>`;
+  }
+
+  /* ================================================================
+     UI
+  ================================================================ */
+  function showTab(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.getElementById('sec-' + id).classList.add('active');
+    btn.classList.add('active');
+    if (id === 'habits')    renderHabitsTab();
+    if (id === 'goals')     renderGoals();
+    if (id === 'analytics') renderAnalytics();
+  }
+
+  function toggleForm(id) {
+    document.getElementById(id).classList.toggle('open');
+  }
+
+  /* ================================================================
+     BOOT
+  ================================================================ */
+  renderHabitsTab();
+  </script>
+</body>
+</html>
