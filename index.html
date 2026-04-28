@@ -497,6 +497,151 @@
       height: 180px;
       margin-bottom: 24px;
     }
+
+    /* ─── TIME RANGE ─── */
+    .time-range {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .time-range input[type="time"] {
+      flex: 1;
+      padding: 9px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg3);
+      color: var(--text);
+      font-size: 13px;
+      font-family: var(--font);
+      outline: none;
+    }
+    .time-range input[type="time"]:focus { border-color: var(--border2); }
+    .time-sep { font-size: 12px; color: var(--text2); flex-shrink: 0; }
+
+    /* ─── SCHEDULE PILLS ─── */
+    .sched-pills {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .sched-pill {
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text2);
+      font-size: 12px;
+      cursor: pointer;
+      font-family: var(--font);
+      transition: all 0.12s;
+      white-space: nowrap;
+    }
+    .sched-pill.active {
+      background: var(--bg3);
+      color: var(--text);
+      border-color: var(--border2);
+    }
+
+    /* ─── DAY CHECKBOXES ─── */
+    .day-checks {
+      display: flex;
+      gap: 5px;
+      margin-top: 10px;
+    }
+    .day-check {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg3);
+      color: var(--text2);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.12s;
+      flex-shrink: 0;
+      font-family: var(--font);
+    }
+    .day-check.on {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+    .day-checks-wrap { display: none; }
+    .day-checks-wrap.visible { display: block; }
+
+    /* ─── AI PHILOSOPHY ─── */
+    .phi-wrap { position: relative; }
+    .phi-wrap textarea {
+      width: 100%;
+      padding: 9px 11px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg3);
+      color: var(--text);
+      font-size: 13px;
+      font-family: var(--font);
+      outline: none;
+      resize: vertical;
+      min-height: 64px;
+      transition: border-color 0.15s;
+    }
+    .phi-wrap textarea:focus { border-color: var(--border2); }
+    .ai-btn {
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 13px;
+      border-radius: 8px;
+      border: 1px solid rgba(168,85,247,0.35);
+      background: rgba(168,85,247,0.08);
+      color: var(--purple);
+      font-size: 12px;
+      cursor: pointer;
+      font-family: var(--font);
+      transition: all 0.15s;
+    }
+    .ai-btn:hover { background: rgba(168,85,247,0.15); }
+    .ai-btn.loading { opacity: 0.6; pointer-events: none; }
+    .ai-spin { animation: spin 0.8s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── API KEY MODAL ─── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 24px;
+      width: 100%;
+      max-width: 360px;
+    }
+    .modal-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .modal-hint {
+      font-size: 12px;
+      color: var(--text2);
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+    .modal-hint a { color: var(--purple); }
   </style>
 </head>
 <body>
@@ -555,17 +700,58 @@
               <option value="spirit">Духовность</option>
             </select>
           </div>
+          <!-- Time range -->
           <div class="form-row">
             <label>Временное окно</label>
-            <input id="hf-time" type="text" placeholder="09:00–12:00">
+            <div class="time-range">
+              <input id="hf-time-from" type="time" value="09:00">
+              <span class="time-sep">→</span>
+              <input id="hf-time-to" type="time" value="12:00">
+            </div>
+          </div>
+          <!-- Schedule -->
+          <div class="form-row">
+            <label>Повторение</label>
+            <div class="sched-pills" id="sched-pills">
+              <button class="sched-pill active" onclick="setSchedule('daily',this)">Ежедневно</button>
+              <button class="sched-pill" onclick="setSchedule('alternate',this)">Через день</button>
+              <button class="sched-pill" onclick="setSchedule('custom',this)">По дням</button>
+              <button class="sched-pill" onclick="setSchedule('times',this)">Раз в неделю</button>
+            </div>
+            <!-- Day checkboxes (shown for 'custom' schedule) -->
+            <div class="day-checks-wrap" id="day-checks-wrap">
+              <div class="day-checks" id="day-checks">
+                <button class="day-check on"  onclick="toggleDay(0,this)">Пн</button>
+                <button class="day-check on"  onclick="toggleDay(1,this)">Вт</button>
+                <button class="day-check on"  onclick="toggleDay(2,this)">Ср</button>
+                <button class="day-check on"  onclick="toggleDay(3,this)">Чт</button>
+                <button class="day-check on"  onclick="toggleDay(4,this)">Пт</button>
+                <button class="day-check"     onclick="toggleDay(5,this)">Сб</button>
+                <button class="day-check"     onclick="toggleDay(6,this)">Вс</button>
+              </div>
+            </div>
+            <!-- Times per week (shown for 'times' schedule) -->
+            <div id="times-wrap" style="display:none;margin-top:10px">
+              <div style="display:flex;align-items:center;gap:8px">
+                <input id="hf-times-num" type="number" min="1" max="7" value="3"
+                       style="width:64px;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:14px;font-weight:700;text-align:center;outline:none">
+                <span style="font-size:13px;color:var(--text2)">раз в неделю</span>
+              </div>
+            </div>
           </div>
           <div class="form-row">
             <label>Минимальная версия (на плохой день)</label>
             <input id="hf-min" type="text" placeholder="Хотя бы 5 минут">
           </div>
+          <!-- Philosophy with AI -->
           <div class="form-row">
             <label>Философия — зачем мне это?</label>
-            <input id="hf-phi" type="text" placeholder="Потому что...">
+            <div class="phi-wrap">
+              <textarea id="hf-phi" placeholder="Потому что..."></textarea>
+              <button class="ai-btn" id="ai-phi-btn" onclick="aiGeneratePhilosophy()">
+                <span id="ai-phi-icon">✨</span> Сгенерировать с AI
+              </button>
+            </div>
           </div>
           <div class="form-row">
             <label>Идентичность (Я — ...)</label>
@@ -645,6 +831,24 @@
     </div><!-- /sec-analytics -->
 
   </div><!-- /app -->
+
+  <!-- API Key Modal -->
+  <div class="modal-overlay" id="api-modal" onclick="closeApiModal(event)">
+    <div class="modal-box">
+      <div class="modal-title">🔑 Ключ Claude API</div>
+      <div class="modal-hint">
+        Введите API ключ от Anthropic — он хранится только в вашем браузере, никуда не отправляется.<br><br>
+        Получить ключ: <a href="https://console.anthropic.com/keys" target="_blank">console.anthropic.com/keys</a>
+      </div>
+      <div class="form-row">
+        <input id="api-key-input" type="password" placeholder="sk-ant-...">
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="saveApiKey()">Сохранить и сгенерировать</button>
+        <button class="btn" onclick="closeApiModal()">Отмена</button>
+      </div>
+    </div>
+  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <script>
@@ -876,7 +1080,7 @@
             ${s > 0 ? `<span class="streak-pill">🔥${s}</span>` : ''}
             <button class="del-btn" onclick="deleteHabit('${h.id}')">×</button>
           </div>
-          ${h.time ? `<div class="habit-time">${h.time}</div>` : ''}
+          ${scheduleLabel(h) ? `<div class="habit-time">${scheduleLabel(h)}</div>` : ''}
           ${h.identity ? `<div class="identity-line">${h.identity}</div>` : ''}
         </div>
         ${dates.map(d =>
@@ -897,16 +1101,155 @@
   }
 
   /* ================================================================
+     SCHEDULE STATE
+  ================================================================ */
+  let _schedType = 'daily';           // 'daily' | 'alternate' | 'custom' | 'times'
+  let _schedDays = [1,1,1,1,1,0,0];  // Mon–Sun booleans for 'custom'
+  let _schedTimes = 3;                // for 'times'
+
+  function setSchedule(type, btn) {
+    _schedType = type;
+    document.querySelectorAll('#sched-pills .sched-pill').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('day-checks-wrap').classList.toggle('visible', type === 'custom');
+    document.getElementById('times-wrap').style.display = (type === 'times') ? 'block' : 'none';
+  }
+
+  function toggleDay(idx, btn) {
+    _schedDays[idx] = _schedDays[idx] ? 0 : 1;
+    btn.classList.toggle('on', !!_schedDays[idx]);
+  }
+
+  function scheduleLabel(h) {
+    if (!h.schedule) return h.time || '';
+    const s = h.schedule;
+    let label = '';
+    if (s.type === 'daily')     label = 'Ежедневно';
+    if (s.type === 'alternate') label = 'Через день';
+    if (s.type === 'times')     label = `${s.timesPerWeek}× в неделю`;
+    if (s.type === 'custom') {
+      const on = DAYS.filter((_, i) => s.days[i]);
+      label = on.join(' · ');
+    }
+    const time = (s.timeFrom && s.timeTo) ? `  ${s.timeFrom}–${s.timeTo}` : '';
+    return label + time;
+  }
+
+  /* ================================================================
+     AI PHILOSOPHY
+  ================================================================ */
+  const AI_KEY_STORAGE = 'pm_claude_key';
+  let _pendingAiTarget = null; // 'habit' | 'goal'
+
+  function aiGeneratePhilosophy() {
+    const key = localStorage.getItem(AI_KEY_STORAGE);
+    if (!key) {
+      _pendingAiTarget = 'habit';
+      document.getElementById('api-modal').classList.add('open');
+      return;
+    }
+    _runAI(key, 'habit');
+  }
+
+  function saveApiKey() {
+    const key = document.getElementById('api-key-input').value.trim();
+    if (!key) return;
+    localStorage.setItem(AI_KEY_STORAGE, key);
+    document.getElementById('api-modal').classList.remove('open');
+    if (_pendingAiTarget) _runAI(key, _pendingAiTarget);
+  }
+
+  function closeApiModal(e) {
+    if (!e || e.target === document.getElementById('api-modal'))
+      document.getElementById('api-modal').classList.remove('open');
+  }
+
+  async function _runAI(apiKey, target) {
+    const nameEl = target === 'habit'
+      ? document.getElementById('hf-name')
+      : document.getElementById('gf-text');
+    const phiEl = target === 'habit'
+      ? document.getElementById('hf-phi')
+      : document.getElementById('gf-phi');
+    const catEl = target === 'habit'
+      ? document.getElementById('hf-cat')
+      : document.getElementById('gf-sphere');
+
+    const name = nameEl.value.trim() || 'эта привычка';
+    const cat  = CATS[catEl.value]?.label || catEl.value;
+
+    const btn = document.getElementById('ai-phi-btn');
+    const icon = document.getElementById('ai-phi-icon');
+    if (btn) { btn.classList.add('loading'); icon.innerHTML = '<span class="ai-spin">⏳</span>'; }
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type':      'application/json',
+          'x-api-key':          apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: JSON.stringify({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 150,
+          messages: [{
+            role: 'user',
+            content: `Напиши одно короткое, личное и мощное "зачем" (философию) для привычки "${name}" в категории "${cat}".
+Формат: 1–2 предложения от первого лица. Без вводных слов, без заголовков.
+Только суть — глубокую личную причину, которая даёт мотивацию каждый день.`,
+          }],
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        if (res.status === 401) {
+          localStorage.removeItem(AI_KEY_STORAGE);
+          alert('Неверный API ключ. Введите заново.');
+          _pendingAiTarget = target;
+          document.getElementById('api-modal').classList.add('open');
+          return;
+        }
+        throw new Error(err.error?.message || res.statusText);
+      }
+
+      const data = await res.json();
+      const text = data.content?.[0]?.text?.trim() || '';
+      if (text) phiEl.value = text;
+
+    } catch(err) {
+      alert('Ошибка AI: ' + err.message);
+    } finally {
+      if (btn) { btn.classList.remove('loading'); icon.innerHTML = '✨'; }
+    }
+  }
+
+  /* ================================================================
      HABIT CRUD
   ================================================================ */
   function addHabit() {
     const name = document.getElementById('hf-name').value.trim();
     if (!name) return;
+
+    const timeFrom = document.getElementById('hf-time-from').value;
+    const timeTo   = document.getElementById('hf-time-to').value;
+    const timesNum = parseInt(document.getElementById('hf-times-num')?.value) || 3;
+
     S.habits.push({
       id:       `h_${Date.now()}`,
       name,
       cat:      document.getElementById('hf-cat').value,
-      time:     document.getElementById('hf-time').value.trim(),
+      schedule: {
+        type:        _schedType,
+        timeFrom:    timeFrom,
+        timeTo:      timeTo,
+        days:        [..._schedDays],
+        timesPerWeek: timesNum,
+      },
+      /* backward-compat time string */
+      time: (timeFrom && timeTo) ? `${timeFrom}–${timeTo}` : '',
       min:      document.getElementById('hf-min').value.trim(),
       phi:      document.getElementById('hf-phi').value.trim(),
       identity: document.getElementById('hf-id').value.trim(),
@@ -915,16 +1258,21 @@
     });
     save();
     toggleForm('form-habit');
-    ['hf-name','hf-time','hf-min','hf-phi','hf-id'].forEach(id =>
+    ['hf-name','hf-min','hf-phi','hf-id'].forEach(id =>
       (document.getElementById(id).value = '')
     );
+    // Reset schedule UI
+    _schedType = 'daily'; _schedDays = [1,1,1,1,1,0,0];
+    document.querySelectorAll('#sched-pills .sched-pill').forEach((b,i) => b.classList.toggle('active', i===0));
+    document.getElementById('day-checks-wrap').classList.remove('visible');
+    document.getElementById('times-wrap').style.display = 'none';
+    document.querySelectorAll('#day-checks .day-check').forEach((b,i) => b.classList.toggle('on', _schedDays[i]));
     renderHabitsTab();
   }
 
   function deleteHabit(id) {
     if (!confirm('Удалить привычку?')) return;
     S.habits = S.habits.filter(h => h.id !== id);
-    // keep events for history
     save();
     renderHabitsTab();
   }
