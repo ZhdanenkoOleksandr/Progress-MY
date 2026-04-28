@@ -1,0 +1,341 @@
+
+<h2 class="sr-only">Метаресурс — интерактивная система достижения целей по 8 сферам жизни с алгоритмами успеха и трекером привычек</h2>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.mw{font-family:var(--font-sans);padding-bottom:2rem}
+.mh{padding:1.25rem 0 1rem;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:flex-end}
+.mh-t{font-size:18px;font-weight:500;color:var(--color-text-primary)}
+.mh-s{font-size:12px;color:var(--color-text-secondary);margin-top:3px}
+.tkn{font-size:11px;padding:4px 10px;border-radius:100px;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary)}
+.nav{display:flex;gap:4px;margin-bottom:1.25rem;flex-wrap:wrap}
+.tn{padding:7px 14px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);background:transparent;font-family:var(--font-sans);font-size:13px;cursor:pointer;color:var(--color-text-secondary)}
+.tn:hover{background:var(--color-background-secondary)}
+.tn.on{background:var(--color-background-secondary);color:var(--color-text-primary);font-weight:500;border-color:var(--color-border-primary)}
+.sec{display:none}
+.sec.on{display:block}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:1.25rem}
+.sc{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:12px;cursor:pointer;transition:border-color .15s}
+.sc:hover{border-color:var(--color-border-primary)}
+.sc-name{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-top:6px;line-height:1.3}
+.sc-stat{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.mets{display:flex;gap:8px;margin-bottom:1.25rem}
+.met{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px;flex:1;min-width:0}
+.ml{font-size:11px;color:var(--color-text-secondary);margin-bottom:3px}
+.mv{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.stt{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px}
+.ssel{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:1rem}
+.ss{padding:5px 12px;border-radius:100px;border:0.5px solid var(--color-border-secondary);background:transparent;font-family:var(--font-sans);font-size:12px;cursor:pointer;color:var(--color-text-secondary)}
+.ss.on,.ss:hover{background:var(--color-background-primary);color:var(--color-text-primary);font-weight:500;border-color:var(--color-border-primary)}
+.sp-hd{display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;padding:1rem;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg)}
+.vw{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:1rem}
+.vp{padding:4px 11px;border-radius:100px;border:0.5px solid var(--color-border-tertiary);font-size:12px;cursor:pointer;color:var(--color-text-secondary);background:transparent;font-family:var(--font-sans)}
+.vp.on{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info)}
+.gw{display:flex;flex-direction:column;gap:7px;margin-bottom:1rem}
+.gi{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 12px;display:flex;align-items:flex-start;gap:10px}
+.gck{width:17px;height:17px;border-radius:50%;border:0.5px solid var(--color-border-secondary);cursor:pointer;flex-shrink:0;margin-top:2px}
+.gck.done{background:var(--color-background-success);border-color:var(--color-border-success)}
+.gt{font-size:13px;color:var(--color-text-primary);line-height:1.4}
+.gd{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.gp{font-size:11px;color:var(--color-text-secondary);font-style:italic;margin-top:4px;border-left:2px solid var(--color-border-tertiary);padding-left:7px;line-height:1.4}
+.ab{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:transparent;font-family:var(--font-sans);font-size:12px;cursor:pointer;color:var(--color-text-secondary)}
+.ab:hover{background:var(--color-background-secondary)}
+.ab.ok{color:var(--color-text-success);border-color:var(--color-border-success)}
+.if{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:1rem;margin-top:10px;display:none}
+.if.open{display:block}
+.fr{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.fr label{font-size:11px;color:var(--color-text-secondary)}
+.sep{border:none;border-top:0.5px solid var(--color-border-tertiary);margin:1.25rem 0}
+.hcat{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:1rem}
+.hc{padding:5px 11px;border-radius:100px;border:0.5px solid var(--color-border-secondary);background:transparent;font-family:var(--font-sans);font-size:12px;cursor:pointer;color:var(--color-text-secondary)}
+.hc.on{background:var(--color-background-primary);color:var(--color-text-primary);font-weight:500;border-color:var(--color-border-primary)}
+.hgrid{margin-bottom:1rem}
+.hrow{display:grid;grid-template-columns:170px repeat(7,1fr);gap:3px;align-items:center;margin-bottom:3px}
+.hh{font-size:11px;color:var(--color-text-secondary);text-align:center}
+.hn{font-size:12px;color:var(--color-text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px}
+.hd{height:30px;border-radius:4px;background:var(--color-background-secondary);cursor:pointer;border:0.5px solid transparent;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--color-text-secondary)}
+.hd.done{background:var(--color-background-success);color:var(--color-text-success);border-color:var(--color-border-success)}
+.hd.today{border-color:var(--color-border-info)}
+.ag{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.25rem}
+.ac{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:12px;cursor:pointer}
+.ac.on{border:2px solid var(--color-border-info)}
+.ac-n{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.ac-a{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.ac-s{font-size:11px;color:var(--color-text-info);margin-top:5px}
+.stps{display:flex;flex-direction:column}
+.si{display:flex;gap:11px;padding:10px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.si:last-child{border-bottom:none}
+.sn{width:24px;height:24px;border-radius:50%;background:var(--color-background-secondary);font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--color-text-primary)}
+.st{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.sd{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.chain{display:flex;gap:5px;margin:10px 0;flex-wrap:wrap}
+.cb{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;flex:1;min-width:110px}
+.cb strong{display:block;font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:5px}
+.ca{color:var(--color-text-secondary);align-self:center;font-size:14px;flex-shrink:0}
+.pbw{margin-bottom:10px}
+.pbl{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+.pb{height:7px;background:var(--color-background-secondary);border-radius:4px;overflow:hidden}
+.pbf{height:100%;border-radius:4px}
+.prize-box{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:1rem;margin-top:1rem}
+.prize-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.prize-item:last-child{border-bottom:none}
+.badge{display:inline-block;padding:2px 8px;border-radius:100px;font-size:11px;background:var(--color-background-warning);color:var(--color-text-warning)}
+</style>
+
+<div class="mw">
+<div class="mh">
+  <div><div class="mh-t">МЕТАРЕСУРС</div><div class="mh-s">Система достижения целей · Web 4.0 · 8 сфер жизни</div></div>
+  <div class="tkn" id="tok">Токен: 0/0 целей</div>
+</div>
+<nav class="nav">
+  <button class="tn on" onclick="tab('dash',this)">Дашборд</button>
+  <button class="tn" onclick="tab('spheres',this)">Сферы</button>
+  <button class="tn" onclick="tab('habits',this)">Привычки</button>
+  <button class="tn" onclick="tab('algo',this)">Алгоритм</button>
+  <button class="tn" onclick="tab('an',this)">Аналитика</button>
+</nav>
+
+<div class="sec on" id="t-dash">
+  <div class="mets" id="d-mets"></div>
+  <div class="stt">8 сфер жизни</div>
+  <div class="sg" id="d-sg"></div>
+</div>
+
+<div class="sec" id="t-spheres">
+  <div class="ssel" id="sp-sel"></div>
+  <div id="sp-c"></div>
+</div>
+
+<div class="sec" id="t-habits">
+  <div class="stt">Трекер привычек</div>
+  <div class="hcat" id="h-cats"></div>
+  <div class="hgrid" id="h-grid"></div>
+  <button class="ab" onclick="toggleHF()">+ Добавить привычку</button>
+  <div class="if" id="h-form">
+    <div class="fr"><label>Название</label><input type="text" id="h-nm" placeholder="Медитация 10 минут"></div>
+    <div class="fr"><label>Категория</label><select id="h-ct"><option value="health">Здоровье</option><option value="sport">Спорт</option><option value="mind">Развитие</option><option value="work">Работа</option><option value="spirit">Духовность</option></select></div>
+    <div class="fr"><label>Время выполнения</label><input type="text" id="h-tm" placeholder="09:00–12:00"></div>
+    <div class="fr"><label>Философия — зачем мне это нужно?</label><textarea id="h-ph" rows="2" placeholder="Это важно для меня, потому что..."></textarea></div>
+    <div style="display:flex;gap:6px;margin-top:6px">
+      <button class="ab ok" onclick="addHabit()">Сохранить</button>
+      <button class="ab" onclick="toggleHF()">Отмена</button>
+      <button class="ab" onclick="sendPrompt('Помогите сформулировать философию (зачем мне это нужно) для привычки: ' + document.getElementById(\'h-nm\').value)" style="margin-left:auto">Философия с AI ↗</button>
+    </div>
+  </div>
+  <hr class="sep">
+  <div class="stt">Конструктор приза</div>
+  <div class="prize-box" id="prize-box">
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px">Составьте цель из нескольких задач — приз активируется при выполнении всех</div>
+    <div id="prize-items"></div>
+    <div style="display:flex;gap:6px;margin-top:10px">
+      <input type="text" id="pr-cond" placeholder="Например: 1000 отжиманий за месяц" style="flex:1">
+      <button class="ab" onclick="addPrize()">+ Условие</button>
+    </div>
+    <div class="fr" style="margin-top:10px"><label>Приз (что получу)</label><input type="text" id="pr-reward" placeholder="Например: новые кроссовки, поездка, ужин в ресторане"></div>
+  </div>
+</div>
+
+<div class="sec" id="t-algo">
+  <div class="stt">Алгоритм достижения успеха</div>
+  <div class="ag" id="a-cards"></div>
+  <div id="a-steps"></div>
+  <hr class="sep">
+  <div class="stt">Цепочка трансформации</div>
+  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px">Опишите свой путь: что было → что произошло → к чему пришли</div>
+  <div class="chain">
+    <div class="cb"><strong>Причина</strong><input type="text" id="c1" placeholder="Исходная ситуация..." style="font-size:12px"></div>
+    <div class="ca">→</div>
+    <div class="cb"><strong>Событие / Действие</strong><input type="text" id="c2" placeholder="Что изменил..." style="font-size:12px"></div>
+    <div class="ca">→</div>
+    <div class="cb"><strong>Результат</strong><input type="text" id="c3" placeholder="Чего достиг..." style="font-size:12px"></div>
+  </div>
+  <div style="display:flex;gap:6px">
+    <button class="ab" onclick="saveChain()">Сохранить цепочку</button>
+    <button class="ab" onclick="sendPrompt('Помогите проанализировать мою цепочку трансформации по методу Боба Проктора: Причина: ' + document.getElementById(\'c1\').value + ' Событие: ' + document.getElementById(\'c2\').value + ' Результат: ' + document.getElementById(\'c3\').value)" >Анализ с AI ↗</button>
+  </div>
+  <div id="c-saved" style="margin-top:10px"></div>
+</div>
+
+<div class="sec" id="t-an">
+  <div class="stt">Прогресс по сферам</div>
+  <div id="an-bars"></div>
+  <hr class="sep">
+  <div class="stt">Привычки — выполнение за неделю</div>
+  <div style="position:relative;height:220px;margin-top:10px">
+    <canvas id="hc" role="img" aria-label="Выполнение привычек по категориям за текущую неделю, в процентах">Процент выполнения привычек по категориям: здоровье, спорт, развитие, работа, духовность.</canvas>
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const SP=[
+  {id:'finance',n:'Финансы',c:'#BA7517',bg:'#FAEEDA'},
+  {id:'career',n:'Карьера / Бизнес',c:'#185FA5',bg:'#E6F1FB'},
+  {id:'health',n:'Здоровье',c:'#0F6E56',bg:'#E1F5EE'},
+  {id:'relations',n:'Отношения',c:'#993556',bg:'#FBEAF0'},
+  {id:'growth',n:'Личностный рост',c:'#534AB7',bg:'#EEEDFE'},
+  {id:'spirit',n:'Духовность / Ценности',c:'#993C1D',bg:'#FAECE7'},
+  {id:'life',n:'Образ жизни / Среда',c:'#3B6D11',bg:'#EAF3DE'},
+  {id:'soc',n:'Вклад в общество',c:'#5F5E5A',bg:'#F1EFE8'},
+];
+const BV=['Устойчивость (терпение)','Самодисциплина','Осознанность','Постоянное обучение','Ответственность','Целеустремлённость'];
+const AL=[
+  {id:'u',n:'Универсальный алгоритм',a:'Боб Проктор · Джо Диспенза · Зеланд',s:'Мысль становится реальностью',
+   st:[{t:'Определи желание',d:'Конкретно: дата, сумма, результат. Чёткость — сигнал намерения.'},{t:'Признай реальность',d:'Честная отправная точка без самообмана. Где ты сейчас?'},{t:'Визуализируй ежедневно',d:'10–20 минут утром и вечером. Желаемое как уже случившееся.'},{t:'Выровняй эмоцию',d:'Почувствуй благодарность и радость от результата — СЕЙЧАС.'},{t:'Действуй изнутри',d:'Следуй интуитивным импульсам. Совпадения — это подсказки.'},{t:'Отпусти контроль',d:'Перестань беспокоиться о "как". Доверяй процессу.'},{t:'Фиксируй и благодари',d:'Записывай знаки, прогресс, совпадения. Ежедневная благодарность.'}]},
+  {id:'a',n:'Атомные привычки',a:'Джеймс Клир',s:'1% улучшение = ×37 за год',
+   st:[{t:'Сделай очевидным',d:'"Я буду [действие] в [время] в [место]." Привязка к контексту.'},{t:'Сделай привлекательным',d:'Объедини трудное с приятным. Пакетирование соблазнов.'},{t:'Сделай простым',d:'Правило 2 минут. Начни с минимальной версии.'},{t:'Сделай удовлетворительным',d:'Немедленное вознаграждение. Не прерывай цепочку.'},{t:'Идентичность > Цель',d:'Не "хочу похудеть", а "я человек, который двигается каждый день".'},{t:'Стекирование',d:'После [старая привычка] → сразу [новая привычка].'}]},
+  {id:'h',n:'Гарвардский метод',a:'Harvard Business School',s:'Из мечты — в план — в результат',
+   st:[{t:'Мечтай без ограничений',d:'Запиши 20–50 желаний. Никакой цензуры.'},{t:'Выбери 4 цели',d:'На 3 мес, год, 3–5 лет и "безумная мечта".'},{t:'Запиши письменно',d:'3% людей пишут цели. Они зарабатывают в 10× больше.'},{t:'Найди сильное ЗАЧЕМ',d:'Причина > метода. Зачем даёт энергию на любое как.'},{t:'Установи дедлайн',d:'Цель без даты — мечта. Дата — обязательство.'},{t:'Действуй сегодня',d:'Определи первый шаг и сделай его в течение 24 часов.'}]},
+  {id:'k',n:'Метод Кайдзен',a:'Масааки Имаи · Toyota',s:'Маленькие шаги — большие перемены',
+   st:[{t:'Маленький вопрос',d:'Что одно крошечное действие я могу сделать сегодня?'},{t:'Маленькие мысли',d:'Убери страх через минимизацию. 1 минута в день — реально.'},{t:'Маленькие шаги',d:'1 страница. 1 отжимание. 1 предложение. Начни.'},{t:'Маленькие проблемы',d:'Исправь то, что мешает прямо сейчас.'},{t:'Маленькое вознаграждение',d:'Фиксируй победы любого масштаба. Мозг учится.'},{t:'Масштабируй',d:'Что работает — делай больше. Что не работает — устраняй.'}]},
+];
+const CL={health:'Здоровье',sport:'Спорт',mind:'Развитие',work:'Работа',spirit:'Духовность'};
+const DY=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+
+let S;
+try { S=JSON.parse(localStorage.getItem('mr3')||'null')||{}; } catch(e){S={};}
+S.goals=S.goals||{};
+S.habits=S.habits||[{id:'h1',n:'Медитация',cat:'spirit',days:[1,1,0,0,0,0,0],phi:'Спокойствие = основа решений',tm:'09:00-10:00'},{id:'h2',n:'Чтение 20 страниц',cat:'mind',days:[1,1,1,0,0,0,0],phi:'Образование — непрерывный процесс',tm:''},{id:'h3',n:'Тренировка',cat:'sport',days:[1,0,1,0,1,0,0],phi:'Сильное тело — источник энергии',tm:'09:00-12:00'}];
+S.values=S.values||BV.slice(0,3);
+S.algo=S.algo||'u';
+S.chains=S.chains||[];
+S.prizes=S.prizes||[];
+S.prizeReward=S.prizeReward||'';
+
+function sv(){try{localStorage.setItem('mr3',JSON.stringify(S));}catch(e){}}
+
+let aSp=SP[0].id, aCat='all', chartI=null;
+
+function ring(pct,col,sz=50){
+  const r=19,c=sz/2,ci=2*Math.PI*r,off=ci-(pct/100)*ci;
+  return `<svg width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}">
+    <circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="var(--color-border-tertiary)" stroke-width="3"/>
+    <circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${col}" stroke-width="3"
+      stroke-dasharray="${ci.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"
+      stroke-linecap="round" transform="rotate(-90 ${c} ${c})"/>
+    <text x="${c}" y="${c+4}" text-anchor="middle" font-size="11" font-family="var(--font-sans)" fill="var(--color-text-primary)" font-weight="500">${pct}%</text>
+  </svg>`;
+}
+
+function pct(sid){const g=S.goals[sid]||[];return g.length?Math.round(g.filter(x=>x.done).length/g.length*100):0;}
+
+function tab(id,btn){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.tn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('t-'+id).classList.add('on');
+  btn.classList.add('on');
+  ({dash:rDash,spheres:rSpheres,habits:rHabits,algo:rAlgo,an:rAn})[id]();
+}
+
+function rDash(){
+  const all=Object.values(S.goals).flat(),done=all.filter(g=>g.done);
+  document.getElementById('tok').textContent=`Токен: ${done.length}/${all.length} целей`;
+  document.getElementById('d-mets').innerHTML=`
+    <div class="met"><div class="ml">Целей всего</div><div class="mv">${all.length}</div></div>
+    <div class="met"><div class="ml">Выполнено</div><div class="mv">${done.length}</div></div>
+    <div class="met"><div class="ml">Привычек</div><div class="mv">${S.habits.length}</div></div>
+    <div class="met"><div class="ml">Ценностей</div><div class="mv">${S.values.length}</div></div>`;
+  document.getElementById('d-sg').innerHTML=SP.map(s=>`
+    <div class="sc" onclick="goSp('${s.id}')">
+      ${ring(pct(s.id),s.c)}
+      <div class="sc-name">${s.n}</div>
+      <div class="sc-stat">${(S.goals[s.id]||[]).length} целей</div>
+    </div>`).join('');
+}
+
+function goSp(sid){aSp=sid;document.querySelectorAll('.tn').forEach((b,i)=>{b.classList.toggle('on',i===1)});document.querySelectorAll('.sec').forEach((s,i)=>{s.classList.toggle('on',i===1)});rSpheres();}
+
+function rSpheres(){
+  document.getElementById('sp-sel').innerHTML=SP.map(s=>`<button class="ss ${s.id===aSp?'on':''}" onclick="selSp('${s.id}')">${s.n}</button>`).join('');
+  const sp=SP.find(s=>s.id===aSp),gs=S.goals[aSp]||[],p=pct(aSp);
+  document.getElementById('sp-c').innerHTML=`
+    <div class="sp-hd">
+      ${ring(p,sp.c,60)}
+      <div><div style="font-size:15px;font-weight:500;color:var(--color-text-primary)">${sp.n}</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-top:3px">${gs.length} целей · ${gs.filter(g=>g.done).length} выполнено</div></div>
+    </div>
+    <div class="stt" style="font-size:13px">Базовые ценности</div>
+    <div class="vw">${BV.map(v=>`<button class="vp ${S.values.includes(v)?'on':''}" onclick="togVal('${v}')">${v}</button>`).join('')}</div>
+    <hr class="sep">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="stt" style="margin:0">Цели сферы</div>
+      <div style="display:flex;gap:6px">
+        <button class="ab" onclick="sendPrompt('Предложите 5 конкретных целей для сферы "${sp.n}" с дедлайнами и метаактивами, используя Гарвардский метод')">AI предложит цели ↗</button>
+        <button class="ab" onclick="togGF()">+ Добавить</button>
+      </div>
+    </div>
+    <div class="if" id="g-form">
+      <div class="fr"><label>Цель</label><input type="text" id="g-n" placeholder="Например: пассивный доход 3 000$/мес"></div>
+      <div class="fr"><label>Дата достижения</label><input type="date" id="g-d" value="${new Date(Date.now()+30*864e5).toISOString().slice(0,10)}"></div>
+      <div class="fr"><label>Метаактив (что получу)</label><input type="text" id="g-m" placeholder="Свобода, время, ресурс..."></div>
+      <div class="fr"><label>Философия — зачем мне это нужно?</label><textarea id="g-p" rows="2" placeholder="Это важно, потому что..."></textarea></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="ab ok" onclick="addGoal()">Сохранить</button>
+        <button class="ab" onclick="togGF()">Отмена</button>
+        <button class="ab" style="margin-left:auto" onclick="sendPrompt('Помогите сформулировать философию (ЗАЧЕМ) для цели: ' + document.getElementById('g-n').value + ' в сфере ${sp.n}')">Философия с AI ↗</button>
+      </div>
+    </div>
+    <div class="gw">${gs.length?gs.map((g,i)=>`
+      <div class="gi">
+        <div class="gck ${g.done?'done':''}" onclick="togGoal('${aSp}',${i})"></div>
+        <div style="flex:1;min-width:0">
+          <div class="gt" style="${g.done?'text-decoration:line-through;opacity:.6':''}">${g.text}</div>
+          ${g.date||g.meta?`<div class="gd">${g.date?'до '+g.date:''}${g.meta?' · '+g.meta:''}</div>`:''}
+          ${g.phi?`<div class="gp">${g.phi}</div>`:''}
+        </div>
+        <button onclick="rmGoal('${aSp}',${i})" style="background:none;border:none;cursor:pointer;color:var(--color-text-secondary);font-size:16px;flex-shrink:0;line-height:1">×</button>
+      </div>`).join(''):`<div style="font-size:13px;color:var(--color-text-secondary);text-align:center;padding:1.5rem 0">Добавьте первую цель для этой сферы</div>`}</div>`;
+}
+
+function selSp(id){aSp=id;rSpheres();}
+function togVal(v){S.values.includes(v)?S.values=S.values.filter(x=>x!==v):S.values.push(v);sv();rSpheres();}
+let gfOpen=false;
+function togGF(){gfOpen=!gfOpen;const f=document.getElementById('g-form');if(f)f.classList.toggle('open',gfOpen);}
+function addGoal(){const t=document.getElementById('g-n').value.trim();if(!t)return;if(!S.goals[aSp])S.goals[aSp]=[];S.goals[aSp].push({text:t,date:document.getElementById('g-d').value,meta:document.getElementById('g-m').value,phi:document.getElementById('g-p').value,done:false});gfOpen=false;sv();rSpheres();}
+function togGoal(sid,i){S.goals[sid][i].done=!S.goals[sid][i].done;sv();rSpheres();}
+function rmGoal(sid,i){S.goals[sid].splice(i,1);sv();rSpheres();}
+
+function rHabits(){
+  const cats=['all','health','sport','mind','work','spirit'];
+  document.getElementById('h-cats').innerHTML=cats.map(c=>`<button class="hc ${c===aCat?'on':''}" onclick="setHC('${c}')">${c==='all'?'Все':CL[c]}</button>`).join('');
+  const filt=aCat==='all'?S.habits:S.habits.filter(h=>h.cat===aCat);
+  const td=new Date().getDay()===0?6:new Date().getDay()-1;
+  let g=`<div class="hrow">${['<div></div>',...DY.map((d,i)=>`<div class="hh" style="${i===td?'font-weight:500;color:var(--color-text-primary)':''}">${d}</div>`)].join('')}</div>`;
+  g+=filt.map(h=>`<div class="hrow">
+    <div class="hn" title="${h.phi||''}">${h.n}${h.tm?` · ${h.tm}`:''}</div>
+    ${h.days.map((done,di)=>`<div class="hd ${done?'done':''} ${di===td?'today':''}" onclick="togHD('${h.id}',${di})">${done?'✓':''}</div>`).join('')}
+  </div>`).join('');
+  if(!filt.length)g+=`<div style="font-size:13px;color:var(--color-text-secondary);padding:1rem;text-align:center">Нет привычек в этой категории</div>`;
+  document.getElementById('h-grid').innerHTML=g;
+  const pi=document.getElementById('prize-items');
+  if(pi)pi.innerHTML=S.prizes.map((p,i)=>`<div class="prize-item"><span style="width:14px;height:14px;border-radius:50%;border:0.5px solid var(--color-border-secondary);display:inline-block;flex-shrink:0"></span><span style="flex:1">${p}</span><button onclick="rmPrize(${i})" style="background:none;border:none;cursor:pointer;color:var(--color-text-secondary);font-size:14px">×</button></div>`).join('');
+  const rw=document.getElementById('pr-reward');
+  if(rw&&S.prizeReward)rw.value=S.prizeReward;
+}
+function setHC(c){aCat=c;rHabits();}
+function toggleHF(){document.getElementById('h-form').classList.toggle('open');}
+function addHabit(){const n=document.getElementById('h-nm').value.trim();if(!n)return;S.habits.push({id:'h'+Date.now(),n,cat:document.getElementById('h-ct').value,days:[0,0,0,0,0,0,0],phi:document.getElementById('h-ph').value,tm:document.getElementById('h-tm').value});sv();document.getElementById('h-form').classList.remove('open');document.getElementById('h-nm').value='';document.getElementById('h-ph').value='';rHabits();}
+function togHD(hid,d){const h=S.habits.find(x=>x.id===hid);if(h){h.days[d]=h.days[d]?0:1;sv();rHabits();}}
+function addPrize(){const c=document.getElementById('pr-cond').value.trim();if(!c)return;S.prizes.push(c);const r=document.getElementById('pr-reward').value;S.prizeReward=r;sv();document.getElementById('pr-cond').value='';rHabits();}
+function rmPrize(i){S.prizes.splice(i,1);sv();rHabits();}
+
+function rAlgo(){
+  document.getElementById('a-cards').innerHTML=AL.map(a=>`<div class="ac ${a.id===S.algo?'on':''}" onclick="selAlgo('${a.id}')"><div class="ac-n">${a.n}</div><div class="ac-a">${a.a}</div><div class="ac-s">${a.s}</div></div>`).join('');
+  const al=AL.find(a=>a.id===S.algo);
+  document.getElementById('a-steps').innerHTML=`<div class="stt">${al.n} — шаги</div><div class="stps">${al.st.map((s,i)=>`<div class="si"><div class="sn">${i+1}</div><div><div class="st">${s.t}</div><div class="sd">${s.d}</div></div></div>`).join('')}</div>`;
+  document.getElementById('c-saved').innerHTML=S.chains.map((c,i)=>`<div class="chain" style="margin-bottom:6px"><div class="cb"><strong>Причина</strong>${c.a}</div><div class="ca">→</div><div class="cb"><strong>Событие</strong>${c.b}</div><div class="ca">→</div><div class="cb"><strong>Результат</strong>${c.c}</div><button onclick="rmChain(${i})" style="background:none;border:none;cursor:pointer;color:var(--color-text-secondary);align-self:flex-start;padding:10px 0 0;font-size:16px">×</button></div>`).join('');
+}
+function selAlgo(id){S.algo=id;sv();rAlgo();}
+function saveChain(){const a=document.getElementById('c1').value.trim(),b=document.getElementById('c2').value.trim(),c=document.getElementById('c3').value.trim();if(!a&&!b&&!c)return;S.chains.push({a,b,c});sv();['c1','c2','c3'].forEach(id=>document.getElementById(id).value='');rAlgo();}
+function rmChain(i){S.chains.splice(i,1);sv();rAlgo();}
+
+function rAn(){
+  document.getElementById('an-bars').innerHTML=SP.map(s=>{const p=pct(s.id);return`<div class="pbw"><div class="pbl"><span style="font-size:12px;color:var(--color-text-primary)">${s.n}</span><span style="font-size:12px;color:var(--color-text-secondary)">${p}%</span></div><div class="pb"><div class="pbf" style="width:${p}%;background:${s.c}"></div></div></div>`;}).join('');
+  const cats=['health','sport','mind','work','spirit'];
+  const data=cats.map(c=>{const h=S.habits.filter(x=>x.cat===c);if(!h.length)return 0;const d=h.reduce((s,x)=>s+x.days.filter(Boolean).length,0);return Math.round(d/(h.length*7)*100);});
+  if(chartI){chartI.destroy();chartI=null;}
+  chartI=new Chart(document.getElementById('hc'),{type:'bar',data:{labels:cats.map(c=>CL[c]),datasets:[{label:'% выполнения',data,backgroundColor:['#0F6E56','#534AB7','#185FA5','#BA7517','#993C1D'],borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%'},grid:{color:'rgba(127,127,127,0.1)'}},x:{grid:{display:false}}}}});
+}
+
+rDash();
+</script>
